@@ -39,11 +39,16 @@
               <select id="destino"></select>
             </label>
           </div>
+          <p class="etiqueta-campo" id="titulo-modo">Cómo mostrar el cálculo</p>
+          <div class="modo-calculo" role="group" aria-labelledby="titulo-modo">
+            <button type="button" data-modo="directa" aria-pressed="true">Ruta directa</button>
+            <button type="button" data-modo="pasos" aria-pressed="false">Ver paso a paso</button>
+          </div>
           <button id="calcular" class="boton principal">Calcular ruta</button>
           <p id="aviso" class="aviso" hidden></p>
         </section>
 
-        <section class="tarjeta">
+        <section id="seccion-pasos" class="tarjeta" hidden>
           <h2>2. Cómo avanza Dijkstra</h2>
           <div class="controles">
             <button id="reproducir" class="boton" disabled>▶ Reproducir</button>
@@ -70,7 +75,7 @@
         </section>
 
         <section id="resultado" class="tarjeta resultado" hidden>
-          <h2>3. Ruta encontrada</h2>
+          <h2 id="titulo-resultado">2. Ruta encontrada</h2>
           <p id="distancia" class="distancia"></p>
           <ol id="recorrido" class="recorrido"></ol>
         </section>

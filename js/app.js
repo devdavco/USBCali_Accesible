@@ -338,7 +338,7 @@ mapa.on('load', function () {
   mapa.fitBounds(limitesDePuntos(), { padding: margenMapa(60), duration: 0 });
   mapaListo = true;
   mostrarExtremos();
-  if (animacion.resultado) mostrarPaso(animacion.indice);
+  mostrarSegunModo();
 });
 
 /** Filtro de la capa 'nombres': puntos con etiqueta, sin repetir origen y destino. */
@@ -429,12 +429,64 @@ function calcular() {
 
   extremos = [origen, destino];
   mostrarExtremos();
-  if (mapaListo) mapa.fitBounds(limitesDePuntos(), { padding: margenMapa(60), duration: 600 });
 
+  // El mismo algoritmo en los dos modos: solo cambia cómo se muestra el resultado.
   animacion.resultado = dijkstra(GRAFO, origen, destino);
+
+  if (modoCalculo === 'directa') {
+    animacion.indice = animacion.resultado.pasos.length - 1;
+    mostrarSegunModo();
+    return;
+  }
+  if (mapaListo) mapa.fitBounds(limitesDePuntos(), { padding: margenMapa(60), duration: 600 });
   animacion.indice = 0;
   mostrarPaso(0);
   reproducir();
+}
+
+/* ------------------------------------------------------------------ */
+/* Modo de cálculo: "Ruta directa" o "Ver paso a paso"                 */
+/* ------------------------------------------------------------------ */
+
+let modoCalculo = 'directa';
+
+/** Ruta directa: solo la ruta final, sin colorear los puntos explorados. */
+function mostrarSegunModo() {
+  if (!animacion.resultado) return;
+  if (modoCalculo === 'pasos') {
+    mostrarPaso(animacion.indice);
+    return;
+  }
+  const ultimo = animacion.resultado.pasos[animacion.resultado.pasos.length - 1];
+  limpiarEstadosMapa();
+  mostrarResultado(ultimo.tipo === 'fin' ? animacion.resultado : null, ultimo.tipo === 'sin-ruta');
+}
+
+function limpiarEstadosMapa() {
+  if (!mapaListo) return;
+  PUNTOS.forEach(function (p) { mapa.setFeatureState({ source: 'puntos', id: p.id }, { estado: 'normal', vecino: false }); });
+  TRAMOS.forEach(function (t, n) { mapa.setFeatureState({ source: 'tramos', id: n }, { activo: false }); });
+}
+
+function cambiarModoCalculo(nuevo) {
+  pausar();
+  modoCalculo = nuevo;
+  document.querySelectorAll('.modo-calculo button').forEach(function (boton) {
+    boton.setAttribute('aria-pressed', String(boton.dataset.modo === nuevo));
+  });
+  el('seccion-pasos').hidden = nuevo === 'directa';
+  el('titulo-resultado').textContent = (nuevo === 'directa' ? '2' : '3') + '. Ruta encontrada';
+  if (!animacion.resultado) return;
+
+  if (nuevo === 'pasos') {
+    // La misma ruta ya calculada, lista para ver la animación desde el principio.
+    animacion.indice = 0;
+    mostrarPaso(0);
+    el('contador').textContent += ' · pulse «▶ Reproducir» para ver cómo se encontró la ruta';
+  } else {
+    animacion.indice = animacion.resultado.pasos.length - 1;
+    mostrarSegunModo();
+  }
 }
 
 function reproducir() {
@@ -590,6 +642,9 @@ function mostrarResultado(resultado, sinRuta) {
 /* ------------------------------------------------------------------ */
 
 el('calcular').addEventListener('click', calcular);
+document.querySelectorAll('.modo-calculo button').forEach(function (boton) {
+  boton.addEventListener('click', function () { cambiarModoCalculo(boton.dataset.modo); });
+});
 el('reproducir').addEventListener('click', reproducir);
 el('pausar').addEventListener('click', pausar);
 el('paso').addEventListener('click', function () { pausar(); avanzar(); });
