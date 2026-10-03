@@ -146,6 +146,11 @@ mapa.on('load', function () {
     ventana.setLngLat(e.features[0].geometry.coordinates).setText(e.features[0].properties.nombre).addTo(mapa);
   });
 
+  // Plano de la universidad, con la calibración hecha en el editor (si existe).
+  if (DATOS_CAMPUS.plano && typeof PLANO_IMAGEN !== 'undefined') {
+    agregarPlano(mapa, DATOS_CAMPUS.plano, PLANO_IMAGEN, 'tramos');
+  }
+
   mapa.fitBounds(limitesDePuntos(), { padding: 60, duration: 0 });
   mapaListo = true;
   if (animacion.resultado) mostrarPaso(animacion.indice);

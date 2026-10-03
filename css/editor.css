@@ -1,0 +1,141 @@
+/* Estilos propios del editor (se suman a css/estilos.css). */
+
+.encabezado p span { font-weight: 600; }
+.encabezado p span.pendiente { color: #fde68a; }
+
+.leyenda .linea.discontinua,
+.muestra.discontinua {
+  background: repeating-linear-gradient(90deg, #dc2626 0 6px, transparent 6px 10px);
+}
+
+/* ---------- Herramientas ---------- */
+.modos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.boton.modo.activo { background: #eff6ff; border-color: var(--azul); color: var(--azul); font-weight: 600; }
+.acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.acciones .boton.principal { width: auto; }
+.boton.ancho { width: 100%; }
+.boton.peligro { color: #b91c1c; border-color: #fca5a5; }
+.boton.peligro:hover:not(:disabled) { background: #fef2f2; border-color: #dc2626; }
+label.boton.archivo { display: flex; align-items: center; justify-content: center; margin-top: 8px; font-size: 0.9rem; }
+
+.ayuda { margin: 10px 0 0; font-size: 0.85rem; color: var(--texto-suave); }
+.mensaje { margin: 10px 0 0; font-size: 0.85rem; min-height: 1.2em; }
+.mensaje.error { color: #b91c1c; }
+.mensaje.ok { color: var(--verde); }
+
+.aviso-borrador { border-color: #fcd34d; background: #fffbeb; }
+.aviso-borrador p { margin: 0 0 10px; font-size: 0.9rem; }
+
+/* ---------- Selección ---------- */
+.campo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; font-size: 0.85rem; font-weight: 600; color: var(--texto-suave); }
+.campo input, .campo select {
+  font: inherit;
+  font-weight: 400;
+  color: var(--texto);
+  padding: 9px 10px;
+  min-height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+.dato { margin: 0 0 8px; font-size: 0.85rem; color: var(--texto-suave); }
+.dato strong { color: var(--texto); }
+
+/* ---------- Avisos y listas ---------- */
+.avisos { border-color: #fcd34d; }
+.avisos ul { margin: 0; padding-left: 1.2em; font-size: 0.9rem; }
+.avisos li { margin-bottom: 4px; }
+
+.lista { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; }
+.lista li button {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.lista li button:hover { background: #f1f5f9; }
+.lista li button:focus-visible { outline: 2px solid var(--azul); }
+.lista li.seleccionado button { background: #fef3c7; }
+.lista .nombre { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista .detalle { color: var(--texto-suave); font-size: 0.8rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lista .alerta-icono { color: #d97706; }
+.lista .vacia { padding: 6px 8px; color: var(--texto-suave); font-size: 0.85rem; }
+
+.muestra, .lista .color {
+  display: inline-block;
+  width: 18px; height: 5px;
+  border-radius: 3px;
+  flex: none;
+}
+.lista .icono-punto { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--gris); }
+.lista .icono-punto.destino { width: 12px; height: 12px; background: var(--azul); }
+
+/* ---------- Marcadores del mapa ---------- */
+.marcador {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--gris);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+}
+.marcador.destino { width: 20px; height: 20px; background: var(--azul); }
+.marcador.seleccionado { box-shadow: 0 0 0 4px var(--ambar); }
+.marcador.inicio-tramo { box-shadow: 0 0 0 4px var(--ambar); animation: latido 1s ease-in-out infinite; }
+@keyframes latido { 50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.35); } }
+
+.marcador .etiqueta {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--texto);
+  font: 11px/1.4 system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.marcador.destino .etiqueta { font-size: 13px; font-weight: 700; }
+
+.esquina {
+  width: 16px; height: 16px;
+  background: #fff;
+  border: 3px solid #0f172a;
+  cursor: move;
+}
+.centro-plano {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #fff;
+  font: 18px/30px system-ui, sans-serif;
+  text-align: center;
+  cursor: move;
+  opacity: 0.85;
+}
+
+/* ---------- Diálogos ---------- */
+dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 20px;
+  width: calc(100% - 32px);
+  max-width: 380px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  color: var(--texto);
+}
+dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
+dialog h2 { margin: 0 0 14px; font-size: 1.1rem; }
+dialog p { margin: 0 0 12px; }
+.alerta { color: #b45309; font-size: 0.9rem; }
+.opciones { border: none; margin: 0 0 8px; padding: 0; }
+.opciones legend { font-size: 0.85rem; font-weight: 600; color: var(--texto-suave); margin-bottom: 4px; padding: 0; }
+.opciones label { display: flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; }
+.opciones input { width: 18px; height: 18px; accent-color: var(--azul); }

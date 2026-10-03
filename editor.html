@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Editor del grafo</title>
+    <!-- MapLibre GL JS (versión UMD: funciona abriendo el archivo sin servidor) -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/editor.css" />
+  </head>
+  <body>
+    <header class="encabezado">
+      <h1>Editor del grafo del campus</h1>
+      <p>Puntos y tramos sobre el plano de la universidad · <span id="estado-guardado">Sin cambios</span></p>
+      <a class="enlace-encabezado" href="index.html">← Volver a la demo</a>
+    </header>
+
+    <main class="contenido">
+      <section class="zona-mapa">
+        <div id="mapa" aria-label="Mapa del campus para editar"></div>
+        <ul class="leyenda">
+          <li><span class="punto destino"></span>Destino</li>
+          <li><span class="punto cruce"></span>Cruce o giro</li>
+          <li><span class="linea" style="background:#16a34a"></span>Plano</li>
+          <li><span class="linea" style="background:#2563eb"></span>Rampa</li>
+          <li><span class="linea" style="background:#ea580c"></span>Pendiente fuerte</li>
+          <li><span class="linea discontinua"></span>Escaleras</li>
+        </ul>
+      </section>
+
+      <aside class="panel">
+        <section id="aviso-borrador" class="tarjeta aviso-borrador" hidden>
+          <p id="aviso-borrador-texto"></p>
+          <button id="descartar-borrador" class="boton">Descartar y cargar js/datos.js</button>
+        </section>
+
+        <section class="tarjeta">
+          <h2>Herramientas</h2>
+          <div class="modos" role="group" aria-label="Modo de edición">
+            <button id="modo-puntos" class="boton modo activo" aria-pressed="true">● Puntos</button>
+            <button id="modo-tramo" class="boton modo" aria-pressed="false">╱ Crear tramo</button>
+          </div>
+          <p id="ayuda-modo" class="ayuda"></p>
+          <div class="acciones">
+            <button id="deshacer" class="boton" disabled>↶ Deshacer</button>
+            <button id="guardar" class="boton principal">Guardar</button>
+          </div>
+          <div class="acciones">
+            <button id="exportar" class="boton">Exportar a Excel</button>
+            <button id="cambiar-destino" class="boton" hidden>Cambiar archivo de destino</button>
+          </div>
+          <p id="mensaje" class="mensaje" role="status"></p>
+        </section>
+
+        <section class="tarjeta">
+          <h2>Plano de la universidad</h2>
+          <p id="sin-imagen" class="ayuda" hidden>No se encontró la imagen del plano (js/plano_imagen.js). Use «Cambiar imagen del plano».</p>
+          <label class="velocidad">Transparencia
+            <span>Más</span>
+            <input id="opacidad" type="range" min="0" max="1" step="0.05" />
+            <span>Menos</span>
+          </label>
+          <button id="fijar-plano" class="boton ancho"></button>
+          <p id="ayuda-plano" class="ayuda"></p>
+          <label class="boton ancho archivo">Cambiar imagen del plano…
+            <input id="imagen-plano" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+          </label>
+        </section>
+
+        <section class="tarjeta">
+          <h2>Selección</h2>
+          <div id="seleccion"></div>
+        </section>
+
+        <section id="avisos" class="tarjeta avisos" hidden>
+          <h2>Avisos</h2>
+          <ul id="lista-avisos"></ul>
+        </section>
+
+        <section class="tarjeta">
+          <h2 id="titulo-puntos">Puntos</h2>
+          <ul id="lista-puntos" class="lista"></ul>
+        </section>
+
+        <section class="tarjeta">
+          <h2 id="titulo-tramos">Tramos</h2>
+          <ul id="lista-tramos" class="lista"></ul>
+        </section>
+      </aside>
+    </main>
+
+    <!-- Nuevo punto -->
+    <dialog id="dialogo-punto">
+      <form method="dialog">
+        <h2>Nuevo punto</h2>
+        <label class="campo">Nombre
+          <input id="punto-nombre" type="text" required autocomplete="off" />
+        </label>
+        <fieldset class="opciones">
+          <legend>Tipo</legend>
+          <label><input type="radio" name="punto-tipo" value="destino" /> Destino</label>
+          <label><input type="radio" name="punto-tipo" value="cruce" /> Cruce o giro</label>
+        </fieldset>
+        <div class="acciones">
+          <button type="button" class="boton" data-cerrar>Cancelar</button>
+          <button value="ok" class="boton principal">Crear punto</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Nuevo tramo -->
+    <dialog id="dialogo-tramo">
+      <form method="dialog">
+        <h2>Nuevo tramo</h2>
+        <p id="tramo-descripcion"></p>
+        <p id="tramo-repetido" class="alerta" hidden>Ya existe un tramo entre estos dos puntos.</p>
+        <fieldset class="opciones">
+          <legend>Condición</legend>
+          <label><input type="radio" name="tramo-condicion" value="plano" /> <span class="muestra" style="background:#16a34a"></span>Plano</label>
+          <label><input type="radio" name="tramo-condicion" value="rampa" /> <span class="muestra" style="background:#2563eb"></span>Rampa</label>
+          <label><input type="radio" name="tramo-condicion" value="escaleras" /> <span class="muestra discontinua"></span>Escaleras</label>
+          <label><input type="radio" name="tramo-condicion" value="pendiente" /> <span class="muestra" style="background:#ea580c"></span>Pendiente fuerte</label>
+        </fieldset>
+        <div class="acciones">
+          <button type="button" class="boton" data-cerrar>Cancelar</button>
+          <button value="ok" class="boton principal">Crear tramo</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Primera vez que se guarda (Chrome / Edge) -->
+    <dialog id="dialogo-archivo">
+      <form method="dialog">
+        <h2 id="archivo-titulo">Elegir dónde guardar</h2>
+        <p id="archivo-texto"></p>
+        <div class="acciones">
+          <button type="button" class="boton" data-cerrar>Cancelar</button>
+          <button value="ok" class="boton principal">Elegir archivo</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+    <script src="js/datos.js"></script>
+    <script src="js/plano_imagen.js"></script>
+    <script src="js/dijkstra.js"></script>
+    <script src="js/plano.js"></script>
+    <script src="js/editor-datos.js"></script>
+    <script src="js/editor.js"></script>
+  </body>
+</html>

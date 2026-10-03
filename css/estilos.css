@@ -32,7 +32,22 @@ body {
   flex-direction: column;
   justify-content: center;
 }
+.encabezado { position: relative; }
 .encabezado h1 { margin: 0; font-size: 1.25rem; }
+.enlace-encabezado {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.enlace-encabezado:hover { background: rgba(255, 255, 255, 0.15); }
 .encabezado p { margin: 2px 0 0; font-size: 0.9rem; opacity: 0.85; }
 
 /* ---------- Distribución: mapa | panel ---------- */
@@ -186,6 +201,7 @@ td.cambio { animation: destello 1s ease-out; }
   :root { --alto-encabezado: auto; }
   .encabezado { padding: 12px 16px; }
   .encabezado h1 { font-size: 1.1rem; }
+  .enlace-encabezado { position: static; transform: none; align-self: flex-start; margin-top: 8px; padding: 6px 12px; }
   .contenido { display: block; height: auto; }
   .zona-mapa { height: 55vh; }
   .panel { overflow: visible; padding: 16px; border-left: none; }
