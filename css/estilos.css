@@ -193,6 +193,47 @@ td.cambio { animation: destello 1s ease-out; }
 .recorrido { margin: 0; padding-left: 1.4em; }
 .recorrido li { padding: 2px 0; }
 
+/* ---------- Demo: nada se sale del panel ----------
+ * Limitado a body.demo para no cambiar el editor, que comparte este archivo. */
+.demo .contenido { grid-template-columns: minmax(0, 1fr) 420px; }
+.demo .panel { min-width: 0; overflow-x: hidden; overflow-wrap: break-word; }
+
+/* Origen y destino lado a lado solo si caben; si no, uno debajo del otro */
+.demo .selectores { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.demo .selectores label { min-width: 0; }
+.demo .selectores select { width: 100%; min-width: 0; text-overflow: ellipsis; }
+
+/* El deslizador de velocidad se encoge en vez de empujar el texto fuera */
+.demo .velocidad input { min-width: 0; width: 100%; }
+
+/* Tabla: siempre cabe a lo ancho; si es larga, se desplaza en vertical */
+.demo .tabla-contenedor {
+  max-height: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.demo table { table-layout: fixed; }
+.demo th:nth-child(1) { width: 38%; }
+.demo th:nth-child(2) { width: 28%; }
+.demo th, .demo td { white-space: normal; vertical-align: top; }
+.demo th { hyphens: auto; letter-spacing: 0.02em; }
+.demo td.costo { white-space: nowrap; }
+.demo thead th { position: sticky; top: 0; z-index: 1; background: var(--tarjeta); box-shadow: inset 0 -1px var(--borde); }
+
+/* Botón "Plano con mapa" / "Solo plano" */
+.demo .control-fondo { display: flex; }
+.demo .control-fondo button {
+  width: auto;
+  height: auto;
+  padding: 7px 12px;
+  font: 600 0.8rem system-ui, sans-serif;
+  color: var(--texto);
+}
+.demo .control-fondo button + button { border-top: none; border-left: 1px solid #ddd; }
+.demo .control-fondo button[aria-pressed="true"] { background: var(--azul); color: #fff; }
+
 /* ---------- Ventanas emergentes del mapa ---------- */
 .maplibregl-popup-content { font: 0.85rem system-ui, sans-serif; padding: 6px 10px; }
 

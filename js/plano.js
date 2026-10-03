@@ -44,3 +44,56 @@ function agregarPlano(mapa, plano, imagen, antesDe) {
     }, mapa.getLayer(antesDe) ? antesDe : undefined);
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Límites del mapa: solo el campus                                    */
+/* ------------------------------------------------------------------ */
+
+/** Rectángulo [[oeste, sur], [este, norte]] que cubre el plano y todos los puntos. */
+function areaDelCampus(plano, puntos) {
+  const coordenadas = puntos.map(function (p) { return [p.lng, p.lat]; });
+  if (plano) plano.esquinas.forEach(function (c) { coordenadas.push(c); });
+  const lngs = coordenadas.map(function (c) { return c[0]; });
+  const lats = coordenadas.map(function (c) { return c[1]; });
+  return [[Math.min.apply(null, lngs), Math.min.apply(null, lats)], [Math.max.apply(null, lngs), Math.max.apply(null, lats)]];
+}
+
+/**
+ * Impide alejarse más allá de ver el campus completo y desplazarse fuera de él.
+ * obtenerArea() devuelve el área del campus; el límite se recalcula si cambia
+ * el tamaño del mapa. Devuelve la función que recalcula (por si el área cambia).
+ */
+function limitarMapaAlCampus(mapa, obtenerArea) {
+  const MARGEN = 0.1;   // 10 % de espacio extra para desplazarse
+  const BORDE_PX = 20;  // espacio entre el campus y el borde de la pantalla al alejarse
+
+  function ajustar() {
+    const area = obtenerArea();
+    const so = maplibregl.MercatorCoordinate.fromLngLat(area[0]);
+    const ne = maplibregl.MercatorCoordinate.fromLngLat(area[1]);
+    const ancho = ne.x - so.x;
+    const alto = so.y - ne.y; // en Mercator, "y" crece hacia el sur
+    const W = mapa.getContainer().clientWidth;
+    const H = mapa.getContainer().clientHeight;
+    if (!W || !H || ancho <= 0 || alto <= 0) return;
+
+    // Zoom con el que el campus completo cabe en pantalla: es el mínimo permitido.
+    const escala = Math.min((W - 2 * BORDE_PX) / ancho, (H - 2 * BORDE_PX) / alto);
+    const zoomMinimo = Math.log2(escala / 512);
+
+    // Zona permitida: lo que se ve con ese zoom alrededor del campus, más el margen.
+    const cx = (so.x + ne.x) / 2;
+    const cy = (so.y + ne.y) / 2;
+    const medioAncho = (W / escala / 2) * (1 + MARGEN);
+    const medioAlto = (H / escala / 2) * (1 + MARGEN);
+    const suroeste = new maplibregl.MercatorCoordinate(cx - medioAncho, cy + medioAlto).toLngLat();
+    const noreste = new maplibregl.MercatorCoordinate(cx + medioAncho, cy - medioAlto).toLngLat();
+
+    mapa.setMaxBounds([suroeste, noreste]);
+    mapa.setMinZoom(zoomMinimo);
+  }
+
+  ajustar();
+  mapa.on('resize', ajustar);
+  return ajustar;
+}

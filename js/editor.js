@@ -108,6 +108,7 @@ const mapa = new maplibregl.Map({
 });
 mapa.addControl(new maplibregl.NavigationControl(), 'top-right');
 let mapaListo = false;
+let ajustarLimites = function () {};
 
 mapa.on('load', function () {
   const vacia = { type: 'FeatureCollection', features: [] };
@@ -172,6 +173,9 @@ mapa.on('load', function () {
   if (estado.puntos.length) estado.puntos.forEach(function (p) { limites.extend([p.lng, p.lat]); });
   else estado.plano.esquinas.forEach(function (c) { limites.extend(c); });
   mapa.fitBounds(limites, { padding: 80, duration: 0, maxZoom: 18 });
+
+  // Mismos límites que la demo; se recalculan al mover el plano o los puntos.
+  ajustarLimites = limitarMapaAlCampus(mapa, function () { return areaDelCampus(estado.plano, estado.puntos); });
 
   mapaListo = true;
   actualizar();
@@ -768,6 +772,7 @@ function actualizar() {
     dibujarTramos();
     mapa.getCanvas().style.cursor = cursorDelModo();
     if (tramoInicio === null) mapa.getSource('guia').setData({ type: 'FeatureCollection', features: [] });
+    ajustarLimites();
   }
   dibujarPlano();
   dibujarPanel();

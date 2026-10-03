@@ -2,7 +2,7 @@
  * ALGORITMO DE DIJKSTRA — escrito a mano, sin librerías de rutas.
  *
  * Este archivo solo contiene lógica: no toca el mapa ni la página.
- * Recibe los datos de js/datos.js y devuelve la ruta más corta junto con
+ * Recibe los datos de js/datos.js y devuelve la ruta de menor costo junto con
  * la lista de pasos que dio el algoritmo (la página los usa para la animación).
  */
 
@@ -151,7 +151,7 @@ function dijkstra(grafo, origen, destino) {
       'Se elige ' + nombre(actual) + ': es el punto pendiente con menor costo (' +
       formatearCosto(costos[actual]) + '). Su costo queda definitivo.');
 
-    // d) Si el elegido es el destino, ya tenemos la ruta más corta.
+    // d) Si el elegido es el destino, ya tenemos la ruta de menor costo.
     if (actual === destino) break;
 
     // e) Relajar: revisar cada vecino que todavía no sea definitivo.
@@ -182,8 +182,9 @@ function dijkstra(grafo, origen, destino) {
   const ruta = reconstruirRuta(previos, destino);
   const metrosTotal = metrosDeRuta(adyacencia, ruta);
   registrar('fin', { actual: destino },
-    '¡Listo! ' + nombre(destino) + ' quedó definitivo. La ruta más corta cuesta ' +
-    formatearCosto(costos[destino]) + '. Se reconstruye siguiendo la columna "Viene de" hacia atrás.');
+    '¡Listo! ' + nombre(destino) + ' quedó definitivo. La ruta de menor costo cuesta ' +
+    formatearCosto(costos[destino]) + ' y recorre ' + formatearCosto(metrosTotal) +
+    '. Se reconstruye siguiendo la columna "Viene de" hacia atrás.');
 
   return { pasos: pasos, ruta: ruta, costoTotal: costos[destino], metrosTotal: metrosTotal };
 }
