@@ -115,7 +115,10 @@ const DATOS_CAMPUS = {
     { id: 87, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34526491, lng: -76.54536783 },
     { id: 88, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34526491, lng: -76.54518104 },
     { id: 89, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34510987, lng: -76.54518972 },
-    { id: 90, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34380584, lng: -76.54373346 }
+    { id: 90, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34380584, lng: -76.54373346 },
+    { id: 91, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.3450954,  lng: -76.54377106 },
+    { id: 92, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34509786, lng: -76.54404841 },
+    { id: 93, nombre: 'cruce',                                        tipo: 'cruce',   lat: 3.34523898, lng: -76.54406148 }
   ],
 
   tramos: [
@@ -218,7 +221,11 @@ const DATOS_CAMPUS = {
     { desde: 1,  hasta: 66, metros: 38.0,  condicion: 'plano' },
     { desde: 90, hasta: 80, metros: 18.4,  condicion: 'plano' },
     { desde: 90, hasta: 67, metros: 59.1,  condicion: 'plano' },
-    { desde: 81, hasta: 80, metros: 44.9,  condicion: 'plano' }
+    { desde: 81, hasta: 80, metros: 44.9,  condicion: 'plano' },
+    { desde: 55, hasta: 91, metros: 11.8,  condicion: 'plano' },
+    { desde: 92, hasta: 91, metros: 30.8,  condicion: 'plano' },
+    { desde: 93, hasta: 92, metros: 15.8,  condicion: 'plano' },
+    { desde: 75, hasta: 93, metros: 11.2,  condicion: 'plano' }
   ],
 
   plano: {
