@@ -223,19 +223,32 @@ mapa.on('load', function () {
   });
   const estado = ['coalesce', ['feature-state', 'estado'], 'normal'];
   const esDestino = ['==', ['get', 'tipo'], 'destino'];
+  // Con "solo la ruta", origen y destino se ven como destinos y los demás puntos de la ruta, pequeños.
+  const enRuta = ['coalesce', ['feature-state', 'enRuta'], ''];
   mapa.addLayer({
     id: 'puntos',
     type: 'circle',
     source: 'puntos',
     paint: {
-      'circle-color': ['match', estado,
-        'actual', COLORES.actual,
-        'definitivo', COLORES.definitivo,
-        'pendiente', COLORES.pendiente,
-        ['case', esDestino, COLORES.destino, COLORES.cruce]],
-      'circle-radius': ['+', ['case', esDestino, 10, 6], ['match', estado, 'actual', 4, 0]],
-      'circle-stroke-color': ['case', ['boolean', ['feature-state', 'vecino'], false], COLORES.actual, '#ffffff'],
-      'circle-stroke-width': ['case', ['boolean', ['feature-state', 'vecino'], false], 4, 2]
+      'circle-color': ['match', enRuta,
+        'extremo', COLORES.destino,
+        'intermedio', COLORES.ruta,
+        ['match', estado,
+          'actual', COLORES.actual,
+          'definitivo', COLORES.definitivo,
+          'pendiente', COLORES.pendiente,
+          ['case', esDestino, COLORES.destino, COLORES.cruce]]],
+      'circle-radius': ['match', enRuta,
+        'extremo', 10,
+        'intermedio', 4,
+        ['+', ['case', esDestino, 10, 6], ['match', estado, 'actual', 4, 0]]],
+      'circle-stroke-color': ['match', enRuta,
+        ['extremo', 'intermedio'], '#ffffff',
+        ['case', ['boolean', ['feature-state', 'vecino'], false], COLORES.actual, '#ffffff']],
+      'circle-stroke-width': ['match', enRuta,
+        'extremo', 2,
+        'intermedio', 1.5,
+        ['case', ['boolean', ['feature-state', 'vecino'], false], 4, 2]]
     }
   });
 
@@ -363,6 +376,43 @@ function mostrarExtremos() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Vista "solo la ruta" y botón "Mostrar todo el grafo"                */
+/* ------------------------------------------------------------------ */
+
+let rutaSola = null;          // ids de la ruta que se muestra sola (null: grafo completo)
+let esperaRutaSola = null;    // temporizador de la pausa al terminar la animación
+const CAPAS_DEL_GRAFO = ['tramos', 'nombres', 'nombres-edificios'];
+
+/** Deja en el mapa solo la ruta: su línea, origen y destino con nombre y los puntos intermedios pequeños. */
+function mostrarSoloRuta(ruta) {
+  clearTimeout(esperaRutaSola);
+  rutaSola = ruta;
+  el('mostrar-grafo').hidden = false;
+  aplicarVistaDelGrafo();
+}
+
+/** Vuelve a mostrar todos los puntos y tramos. */
+function mostrarGrafoCompleto() {
+  clearTimeout(esperaRutaSola);
+  if (!rutaSola) return;
+  rutaSola = null;
+  el('mostrar-grafo').hidden = true;
+  aplicarVistaDelGrafo();
+}
+
+function aplicarVistaDelGrafo() {
+  if (!mapaListo) return;
+  const ruta = rutaSola || [];
+  CAPAS_DEL_GRAFO.forEach(function (id) { mapa.setLayoutProperty(id, 'visibility', rutaSola ? 'none' : 'visible'); });
+  mapa.setFilter('puntos', rutaSola ? ['in', ['get', 'id'], ['literal', ruta]] : null);
+  PUNTOS.forEach(function (p) { mapa.removeFeatureState({ source: 'puntos', id: p.id }, 'enRuta'); });
+  ruta.forEach(function (id, n) {
+    const extremo = n === 0 || n === ruta.length - 1;
+    mapa.setFeatureState({ source: 'puntos', id: id }, { enRuta: extremo ? 'extremo' : 'intermedio' });
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* Listas de origen y destino (solo puntos de tipo destino)            */
 /* ------------------------------------------------------------------ */
 
@@ -419,6 +469,7 @@ function calcular() {
   const origen = Number(el('origen').value);
   const destino = Number(el('destino').value);
   pausar();
+  mostrarGrafoCompleto();
 
   if (origen === destino) {
     el('aviso').textContent = 'El origen y el destino deben ser distintos.';
@@ -460,6 +511,8 @@ function mostrarSegunModo() {
   const ultimo = animacion.resultado.pasos[animacion.resultado.pasos.length - 1];
   limpiarEstadosMapa();
   mostrarResultado(ultimo.tipo === 'fin' ? animacion.resultado : null, ultimo.tipo === 'sin-ruta');
+  if (ultimo.tipo === 'fin') mostrarSoloRuta(animacion.resultado.ruta);
+  else mostrarGrafoCompleto();
 }
 
 function limpiarEstadosMapa() {
@@ -491,6 +544,7 @@ function cambiarModoCalculo(nuevo) {
 
 function reproducir() {
   if (!animacion.resultado || esUltimoPaso()) return;
+  mostrarGrafoCompleto();
   animacion.reproduciendo = true;
   programarSiguiente();
   actualizarBotones();
@@ -590,8 +644,12 @@ function mostrarPaso(i) {
     });
   }
 
-  // Resultado final
+  // Resultado final. Al terminar, el estado final se ve unos segundos y luego queda solo la ruta.
   mostrarResultado(paso.tipo === 'fin' ? animacion.resultado : null, paso.tipo === 'sin-ruta');
+  mostrarGrafoCompleto();
+  if (paso.tipo === 'fin') {
+    esperaRutaSola = setTimeout(function () { mostrarSoloRuta(animacion.resultado.ruta); }, 2000);
+  }
   actualizarBotones();
 }
 
@@ -649,3 +707,7 @@ el('reproducir').addEventListener('click', reproducir);
 el('pausar').addEventListener('click', pausar);
 el('paso').addEventListener('click', function () { pausar(); avanzar(); });
 el('reiniciar').addEventListener('click', reiniciar);
+el('mostrar-grafo').addEventListener('click', mostrarGrafoCompleto);
+// Al cambiar origen o destino se ve el grafo completo hasta volver a calcular.
+el('origen').addEventListener('change', mostrarGrafoCompleto);
+el('destino').addEventListener('change', mostrarGrafoCompleto);

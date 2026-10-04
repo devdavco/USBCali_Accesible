@@ -192,6 +192,7 @@ td.cambio { animation: destello 1s ease-out; }
 .distancia strong { color: var(--verde); font-size: 1.4rem; }
 .recorrido { margin: 0; padding-left: 1.4em; }
 .recorrido li { padding: 2px 0; }
+.boton-grafo { width: 100%; margin-top: 12px; }
 
 /* ---------- Demo: nada se sale del panel ----------
  * Limitado a body.demo para no cambiar el editor, que comparte este archivo. */
